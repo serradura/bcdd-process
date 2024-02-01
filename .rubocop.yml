@@ -28,6 +28,9 @@ Layout/MultilineMethodCallIndentation:
 Lint/UnderscorePrefixedVariableName:
   Enabled: false
 
+Style/Documentation:
+  Enabled: false
+
 Style/AccessModifierDeclarations:
   Enabled: false
 
@@ -56,6 +59,9 @@ Naming/MethodName:
   Enabled: false
 
 Naming/VariableName:
+  Enabled: false
+
+Naming/MemoizedInstanceVariableName:
   Enabled: false
 
 Metrics/BlockLength:

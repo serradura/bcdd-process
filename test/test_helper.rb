@@ -13,6 +13,8 @@ require 'bcdd/process'
 
 require 'minitest/autorun'
 
+Dir[File.expand_path('support/**/*.rb', __dir__)].sort.each { |file| require file }
+
 class Minitest::Test
   # Implementation based on:
   # https://github.com/rails/rails/blob/ac717d6/activesupport/lib/active_support/testing/declarative.rb

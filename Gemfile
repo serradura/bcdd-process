@@ -15,3 +15,8 @@ gem 'rubocop-performance', '~> 1.20', '>= 1.20.2'
 gem 'rubocop-rake', '~> 0.6.0'
 
 gem 'simplecov', '~> 0.22.0', require: false
+
+# Test stuffs
+gem 'activerecord', '~> 7.1', '>= 7.1.2'
+gem 'bcrypt', '~> 3.1.20'
+gem 'sqlite3', '~> 1.7'

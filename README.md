@@ -3,6 +3,94 @@
   <p align="center"><i>Write reliable, self-documented, and self-observable business processes in Ruby.</i></p>
 </p>
 
+## Ruby Version
+
+`>= 2.7.0`
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'bcdd-process'
+```
+
+And then execute:
+
+    $ bundle install
+
+If bundler is not being used to manage dependencies, install the gem by executing:
+
+    $ gem install bcdd-process
+
+And require it in your code:
+
+    require 'bcdd/process'
+
+## Usage Example
+
+Check out the [examples/business_processes](examples/business_processes) directory for a complete (Rails like app) example.
+
+```ruby
+class User
+  class Creation < ::BCDD::Process
+    include BCDD::Result::RollbackOnFailure
+
+    input do
+      attribute :uuid, contract: :is_uuid, default: -> { ::SecureRandom.uuid }, normalize: -> { _1.strip.downcase }
+      attribute :name, contract: :is_str, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
+      attribute :email, contract: :is_email, normalize: -> { _1.strip.downcase }
+      attribute :password, contract: :is_password
+      attribute :password_confirmation, contract: :is_password
+    end
+
+    output do
+      Failure(
+        invalid_user: :errors_by_attribute,
+        email_already_taken: :empty_hash,
+      )
+
+      user = contract[::User] & :is_persisted
+      token = contract[Token] & :is_persisted
+
+      Success(user_created: { user:, token: })
+    end
+
+    def call(**input)
+      Given(input)
+        .and_then(:validate_email_uniqueness)
+        .then { |result|
+          rollback_on_failure {
+            result
+              .and_then(:create_user)
+              .and_then(:create_user_token)
+          }
+        }
+        .and_expose(:user_created, %i[user token])
+    end
+
+    private
+
+    def validate_email_uniqueness(email:, **)
+      ::User.exists?(email:) ? Failure(:email_already_taken) : Continue()
+    end
+
+    def create_user(uuid:, name:, email:, password:, password_confirmation:)
+      user = ::User.create(uuid:, name:, email:, password:, password_confirmation:)
+
+      user.persisted? ? Continue(user:) : Failure(:invalid_user, **user.errors.messages)
+    end
+
+    def create_user_token(user:, **)
+      Token::Creation.new.call(user: user).handle do |on|
+        on.success { |output| Continue(token: output[:token]) }
+        on.failure { raise 'Token creation failed' }
+      end
+    end
+  end
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
