@@ -1,13 +1,84 @@
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-performance
+  - rubocop-minitest
+  - rubocop-rake
+
 AllCops:
-  TargetRubyVersion: 2.6
-
-Style/StringLiterals:
-  Enabled: true
-  EnforcedStyle: double_quotes
-
-Style/StringLiteralsInInterpolation:
-  Enabled: true
-  EnforcedStyle: double_quotes
+  NewCops: enable
+  TargetRubyVersion: 2.7
+  Exclude:
+    - 'examples/**/*'
+    - 'vendor/**/*'
+    - 'spec/fixtures/**/*'
+    - 'tmp/**/*'
+    - '.git/**/*'
+    - 'bin/*'
 
 Layout/LineLength:
   Max: 120
+
+Layout/ExtraSpacing:
+  AllowBeforeTrailingComments: true
+
+Layout/MultilineMethodCallIndentation:
+  Enabled: false
+
+Lint/UnderscorePrefixedVariableName:
+  Enabled: false
+
+Style/AccessModifierDeclarations:
+  Enabled: false
+
+Style/CaseEquality:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Lambda:
+  EnforcedStyle: literal
+
+Style/ParallelAssignment:
+  Enabled: false
+
+Style/SingleLineMethods:
+  Enabled: false
+
+Style/MapToSet:
+  Enabled: false
+
+Style/MixinGrouping:
+  Enabled: false
+
+Naming/MethodName:
+  Enabled: false
+
+Naming/VariableName:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - test/**/*.rb
+
+Metrics/ClassLength:
+  Exclude:
+    - test/**/*.rb
+
+Minitest/MultipleAssertions:
+  Enabled: false
+
+Minitest/AssertEmptyLiteral:
+  Enabled: false
+
+Minitest/AssertOperator:
+  Enabled: false
+
+Minitest/AssertWithExpectedArgument:
+  Exclude:
+    - test/test_helper.rb
+
+Naming/FileName:
+  Exclude:
+    - lib/bcdd-process.rb
