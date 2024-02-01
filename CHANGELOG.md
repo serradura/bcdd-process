@@ -1,5 +1,11 @@
 ## [Unreleased]
 
-## [0.1.0] - 2024-01-31
+## [0.2.0] - 2024-02-01
 
-- Initial release
+- Update gem's dependencies.
+  - bcdd-contract >= 0.1.0
+  - bcdd-result >= 0.3.0
+
+## [0.1.0] - 2024-02-01
+
+- Add `BCDD::Process` - Initial/POC release.
