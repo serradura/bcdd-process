@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [0.3.1] - 2024-02-03
+
+### Fixed
+
+- Make the input `normalize:` work with Ruby `2.7`.
+
 ## [0.3.0] - 2024-02-03
 
 ### Added
