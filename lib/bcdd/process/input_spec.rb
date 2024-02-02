@@ -15,12 +15,10 @@ module BCDD
         end
 
         def self.resolve(options)
-          return ::BCDD::Contract[options[:contract]] if options.key?(:contract)
-
           type = ::BCDD::Contract.unit(options[:type]) if options.key?(:type)
-          validate = ::BCDD::Contract.unit(options[:validate]) if options.key?(:validate)
+          contract = ::BCDD::Contract[options[:contract]] if options.key?(:contract)
 
-          type && validate ? (type & validate) : type || validate
+          type && contract ? (type & contract) : type || contract
         end
       end
 
@@ -50,10 +48,6 @@ module BCDD
 
       def attribute(name, **options)
         name.is_a?(Symbol) or raise ArgumentError, "#{name.inspect} must be a Symbol"
-
-        if options.key?(:contract) && (options.key?(:type) || options.key?(:validate))
-          raise ArgumentError, 'Cannot specify both :contract and (:type or :validate)'
-        end
 
         spec = {}
         spec[:default] = MapDefault[options] if options.key?(:default)

@@ -7,8 +7,8 @@ class BCDD::ProcessTest < Minitest::Test
     input do
       uuid_format = -> { _1.match?(/\A[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\z/i) or 'must be an UUID' }
 
-      attribute :uuid, type: ::String, validate: uuid_format, default: -> { ::SecureRandom.uuid }
-      attribute :name, type: ::String, validate: :is_present, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
+      attribute :uuid, type: ::String, contract: uuid_format, default: -> { ::SecureRandom.uuid }
+      attribute :name, type: ::String, contract: :is_present, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
       attribute :email, contract: :is_email, normalize: -> { _1.strip.downcase }
       attribute :password, contract: :is_password
       attribute :executed_at, type: ::Time, default: -> { ::Time.current }
