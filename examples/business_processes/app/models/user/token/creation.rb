@@ -13,9 +13,7 @@ class User::Token
         token_creation_failed: :errors_by_attribute
       )
 
-      token = contract[User::Token] & :is_persisted
-
-      Success(token_created: { token: })
+      Success token_created: { token: contract[User::Token] & :is_persisted }
     end
 
     def call(**input)

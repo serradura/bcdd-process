@@ -17,7 +17,7 @@ class BCDD::ProcessTest < Minitest::Test
     output do
       Failure(email_already_taken: :empty_hash)
 
-      Success(user_created: { user: contract[::User] & :is_persisted })
+      Success user_created: { user: contract[::User] & :is_persisted }
     end
 
     def call(**input)

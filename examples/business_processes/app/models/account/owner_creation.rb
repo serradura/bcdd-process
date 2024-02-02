@@ -15,10 +15,10 @@ class Account
         invalid_account: :errors_by_attribute
       )
 
-      user = contract[::User] & :is_persisted
-      account = contract[::Account] & :is_persisted
-
-      Success(account_owner_created: { account:, user: })
+      Success account_owner_created: {
+        user: contract[::User] & :is_persisted,
+        account: contract[::Account] & :is_persisted
+      }
     end
 
     def call(**input)

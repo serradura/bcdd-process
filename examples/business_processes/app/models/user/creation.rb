@@ -18,10 +18,10 @@ class User
         email_already_taken: :empty_hash
       )
 
-      user = contract[::User] & :is_persisted
-      token = contract[Token] & :is_persisted
-
-      Success(user_created: { user:, token: })
+      Success user_created: {
+        user: contract[::User] & :is_persisted,
+        token: contract[Token] & :is_persisted
+      }
     end
 
     def call(**input)

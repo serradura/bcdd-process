@@ -37,7 +37,7 @@ class User
     include BCDD::Result::RollbackOnFailure
 
     input do
-      attribute :uuid, contract: :is_uuid, default: -> { ::SecureRandom.uuid }, normalize: -> { _1.strip.downcase }
+      attribute :uuid, contract: :is_uuid, normalize: -> { _1.strip.downcase }, default: -> { ::SecureRandom.uuid }
       attribute :name, contract: :is_str, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
       attribute :email, contract: :is_email, normalize: -> { _1.strip.downcase }
       attribute :password, contract: :is_password
@@ -47,13 +47,13 @@ class User
     output do
       Failure(
         invalid_user: :errors_by_attribute,
-        email_already_taken: :empty_hash,
+        email_already_taken: :empty_hash
       )
 
-      user = contract[::User] & :is_persisted
-      token = contract[Token] & :is_persisted
-
-      Success(user_created: { user:, token: })
+      Success user_created: {
+        user: contract[::User] & :is_persisted,
+        token: contract[Token] & :is_persisted
+      }
     end
 
     def call(**input)
