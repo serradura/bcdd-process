@@ -10,7 +10,7 @@ module BCDD
           if options.key?(:contract) || options.key?(:type) || options.key?(:validate)
             resolve(options).then { required ? _1 : (_1 | nil) }
           elsif required
-            Contracts::CannotBeNil
+            Contracts::NotNil
           end
         end
 

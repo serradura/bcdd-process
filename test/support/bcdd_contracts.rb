@@ -3,12 +3,12 @@
 module BCDD::Contracts
   HasSize = ->(min, max) { ->(val) { val.size.between?(min, max) or "must be >= #{min} and <= #{max} chars" } }
 
-  is_str = ::BCDD::Contract[::String]
+  is_str = contract[::String]
   is_email = ->(val) { val.match?(::URI::MailTo::EMAIL_REGEXP) or '%p must be an email' }
   is_present = ->(val) { val.present? or '%p must be present' }
   is_persisted = ->(val) { val.persisted? or '%p must be persisted' }
 
-  ::BCDD::Contract.register(
+  register(
     is_str: is_str,
     is_email: is_str & is_email,
     is_present: is_present,
@@ -16,9 +16,9 @@ module BCDD::Contracts
     is_persisted: is_persisted
   )
 
-  EmptyHash = ::BCDD::Contract[::Hash] & ->(value) { value.empty? }
+  EmptyHash = contract[::Hash] & ->(value) { value.empty? }
 
-  ::BCDD::Contract.register(
+  register(
     empty_hash: EmptyHash
   )
 end

@@ -3,16 +3,14 @@
 require 'bcdd/result'
 require 'bcdd/contract'
 
+require_relative 'contracts'
+
 require_relative 'process/version'
 require_relative 'process/caller'
 require_relative 'process/input_spec'
 require_relative 'process/output_spec'
 
 module BCDD
-  module Contracts
-    CannotBeNil = BCDD::Contract[-> { _1.nil? and 'cannot be nil' }]
-  end
-
   class Process
     class << self
       attr_reader :__input__, :__input_contract__, :__output__
