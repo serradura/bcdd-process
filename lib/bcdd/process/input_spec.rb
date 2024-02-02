@@ -34,7 +34,7 @@ module BCDD
       MapNormalize = ->(options) do
         value = options[:normalize]
 
-        return value if value.is_a?(Proc) && value.lambda? && value.arity == 1
+        return value if value.is_a?(Proc) && value.lambda?
 
         raise ArgumentError, 'normalize value must be a lambda with one arity'
       end
