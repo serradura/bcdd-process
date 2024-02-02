@@ -5,8 +5,8 @@ class Account
     include BCDD::Result::RollbackOnFailure
 
     input do
-      attribute :uuid, contract: :is_uuid, default: -> { ::SecureRandom.uuid }, normalize: -> { _1.strip.downcase }
-      attribute :owner, type: ::Hash, validate: :is_present
+      attribute :uuid, contract: :is_uuid, normalize: -> { _1.strip.downcase }, default: -> { ::SecureRandom.uuid }
+      attribute :owner, type: ::Hash, contract: :is_present
     end
 
     output do
@@ -22,15 +22,12 @@ class Account
     end
 
     def call(**input)
-      Given(input)
-        .then { |result|
-          rollback_on_failure {
-            result
-              .and_then(:create_owner)
-              .and_then(:create_account)
-              .and_then(:link_owner_to_account)
-          }
-        }.and_expose(:account_owner_created, %i[account user])
+      rollback_on_failure {
+        Given(input)
+          .and_then(:create_owner)
+          .and_then(:create_account)
+          .and_then(:link_owner_to_account)
+      }.and_expose(:account_owner_created, %i[account user])
     end
 
     private

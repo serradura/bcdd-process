@@ -5,7 +5,7 @@ class User
     include BCDD::Result::RollbackOnFailure
 
     input do
-      attribute :uuid, contract: :is_uuid, default: -> { ::SecureRandom.uuid }, normalize: -> { _1.strip.downcase }
+      attribute :uuid, contract: :is_uuid, normalize: -> { _1.strip.downcase }, default: -> { ::SecureRandom.uuid }
       attribute :name, contract: :is_str, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
       attribute :email, contract: :is_email, normalize: -> { _1.strip.downcase }
       attribute :password, contract: :is_password
