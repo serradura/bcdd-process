@@ -12,7 +12,7 @@ class Account
     output do
       Failure(
         invalid_owner: ::Hash,
-        invalid_account: :errors_by_attribute,
+        invalid_account: :errors_by_attribute
       )
 
       user = contract[::User] & :is_persisted

@@ -3,18 +3,6 @@
 module BCDD
   class Process
     module Caller
-      class NullContract
-        attr_reader :value
-
-        def initialize(value)
-          @value = value
-        end
-
-        def invalid?
-          false
-        end
-      end
-
       PrepareInputs = ->(spec, input) do
         spec.each_with_object({}) do |(name, options), result|
           value = input.fetch(name) do
@@ -27,7 +15,7 @@ module BCDD
 
           value = options[:normalize].call(value) if options.key?(:normalize)
 
-          result[name] = options.key?(:contract) ? options[:contract][value] : NullContract.new(value)
+          result[name] = options.key?(:contract) ? options[:contract][value] : Contract.null(value)
         end
       end
 

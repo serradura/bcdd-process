@@ -15,7 +15,7 @@ class User
     output do
       Failure(
         invalid_user: :errors_by_attribute,
-        email_already_taken: :empty_hash,
+        email_already_taken: :empty_hash
       )
 
       user = contract[::User] & :is_persisted

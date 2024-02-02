@@ -4,6 +4,7 @@ require 'bcdd/result'
 require 'bcdd/contract'
 
 require_relative 'contracts'
+require_relative 'contract/null'
 
 require_relative 'process/version'
 require_relative 'process/caller'
