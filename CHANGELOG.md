@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.4.0] - 2024-02-04
+
 ### Added
 
 - Add `:value` input property to use a registered `BCDD::Value` to handle the input.
