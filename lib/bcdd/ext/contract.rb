@@ -4,6 +4,7 @@ require 'bcdd/contract'
 
 require_relative 'contracts'
 require_relative 'contract/null'
+require_relative 'contract/respond_to'
 
 module BCDD::Contract
   # TODO: Move to bcdd-contract
