@@ -3,56 +3,57 @@
 require 'bcdd/result'
 
 require_relative 'ext/contract'
+require_relative 'ext/data'
 
 require_relative 'process/version'
-require_relative 'process/caller'
-require_relative 'process/input_spec'
-require_relative 'process/output_spec'
+require_relative 'process/output'
 
 module BCDD
   class Process
-    class << self
-      attr_reader :__input__, :__input_contract__, :__output__
+    module Caller
+      def call(**kargs)
+        input = self.class::Input.new(**kargs)
 
-      def input(&block)
-        return @__input__ if defined?(@__input__)
+        Result.transitions(name: self.class.name) do
+          return Failure(:invalid_input, **input.errors) if input.errors.any?
 
-        spec = InputSpec.new
-        spec.instance_eval(&block)
-        spec.__result__.transform_values!(&:freeze).freeze
-
-        @__input_contract__ = spec.__result__.any? { |_key, value| value.key?(:contract) }
-        @__input__ = spec.__result__
-      end
-
-      def output(expectations: true, &block)
-        @__output__ and raise ArgumentError, 'outputs already defined'
-
-        config = { addon: { given: true, continue: true } }
-
-        if expectations
-          spec = OutputSpec.new
-          spec.instance_eval(&block)
-
-          output = spec.__result__
-          success = output[:success]
-          failure = output.fetch(:failure, {}).merge(invalid_input: ::Hash)
-
-          include(Result::Context::Expectations.mixin(config: config, success: success, failure: failure))
-        else
-          include(Result::Context.mixin(config: config))
+          super(**input.attributes)
         end
-
-        @__output__ = { expectations: expectations }.freeze
-      end
-
-      def inherited(subclass)
-        subclass.prepend(Caller)
-      end
-
-      def call(**input)
-        new.call(**input)
       end
     end
+
+    def self.input(&block)
+      return if const_defined?(:Input)
+
+      const_set(:Input, ::BCDD::Data.new(&block))
+    end
+
+    RESULT_CONFIG = { addon: { given: true, continue: true }.freeze }.freeze
+
+    def self.output(expectations: true, &block)
+      return if const_defined?(:Result, false)
+
+      if expectations
+        evaluator = Output::Evaluator.new
+        evaluator.instance_eval(&block)
+
+        success = evaluator.__properties__.success
+        failure = evaluator.__properties__.failure
+
+        include(Result::Context::Expectations.mixin(config: RESULT_CONFIG, success: success, failure: failure))
+      else
+        include(Result::Context.mixin(config: RESULT_CONFIG))
+      end
+    end
+
+    def self.inherited(subclass)
+      subclass.prepend(Caller)
+    end
+
+    def self.call(**input)
+      new.call(**input)
+    end
+
+    private_constant :Caller, :RESULT_CONFIG
   end
 end
