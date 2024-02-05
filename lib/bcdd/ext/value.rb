@@ -55,6 +55,14 @@ module BCDD
         raise ArgumentError, 'normalize value must be a lambda'
       end
 
+      Type = ->(options) do
+        type = options[:type]
+
+        return type if type.is_a?(::Module)
+
+        raise ArgumentError, 'type must be a Module or a Class'
+      end
+
       attr_reader :spec, :contract
 
       def initialize(options)
@@ -63,6 +71,7 @@ module BCDD
         contract = Contract[options]
 
         @spec = {}
+        @spec[:type] = Type[options] if options.key?(:type)
         @spec[:default] = Default[options] if options.key?(:default)
         @spec[:contract] = contract if contract
         @spec[:normalize] = Normalize[options] if options.key?(:normalize)
@@ -82,13 +91,14 @@ module BCDD
 
       def map(value)
         if !value && spec.key?(:default)
-
           default = spec[:default]
 
           value = default.is_a?(::Proc) ? default.call : default
         end
 
-        value = spec[:normalize].call(value) if spec.key?(:normalize)
+        type = spec[:type]
+
+        value = spec[:normalize].call(value) if spec.key?(:normalize) && (!type || type === value)
 
         spec.key?(:contract) ? spec[:contract][value] : Contract.null(value)
       end

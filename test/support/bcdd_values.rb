@@ -12,8 +12,9 @@ module BCDD
   module Values
     register(
       name: :uuid,
+      type: ::String,
       contract: :is_uuid,
-      normalize: -> { _1.is_a?(::String) ? _1.strip.downcase : _1 },
+      normalize: -> { _1.strip.downcase },
       default: -> { ::SecureRandom.uuid }
     )
   end

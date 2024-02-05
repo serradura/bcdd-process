@@ -67,6 +67,10 @@ Naming/VariableName:
 Naming/MemoizedInstanceVariableName:
   Enabled: false
 
+Metrics/AbcSize:
+  Exclude:
+    - lib/bcdd/ext/value.rb
+
 Metrics/BlockLength:
   Exclude:
     - test/**/*.rb
