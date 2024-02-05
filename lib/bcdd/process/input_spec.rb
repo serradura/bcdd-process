@@ -7,7 +7,7 @@ module BCDD
         def self.[](options)
           required = options.fetch(:required, true)
 
-          if options.key?(:type) || options.key?(:contract)
+          if options.key?(:type) || options.key?(:contract) || options.key?(:respond_to)
             resolve(options).then { required ? _1 : (_1 | nil) }
           elsif required
             Contracts::NotNil
@@ -17,8 +17,9 @@ module BCDD
         def self.resolve(options)
           type = ::BCDD::Contract.type(options[:type]) if options.key?(:type)
           contract = ::BCDD::Contract[options[:contract]] if options.key?(:contract)
+          respond_to = ::BCDD::Contract.respond_to(Array(options[:respond_to])) if options.key?(:respond_to)
 
-          type && contract ? (type & contract) : type || contract
+          [type, contract, respond_to].compact.reduce(:&)
         end
       end
 
