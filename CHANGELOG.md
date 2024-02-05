@@ -1,5 +1,26 @@
 ## [Unreleased]
 
+## [0.4.0] - 2024-02-04
+
+### Added
+
+- Add `:value` input property to use a registered `BCDD::Value` to handle the input.
+  ```ruby
+  attribute :name, value: :name
+  ```
+
+- Add `:respond_to` input property to check if the value responds to a given method.
+  ```ruby
+  attribute :name, respond_to: :strip
+  ```
+
+### Changed
+
+- Use `:type` property to check if the normalize should be applied.
+  ```ruby
+  attribute :name, type: String, normalize: -> { _1.strip }
+  ```
+
 ## [0.3.1] - 2024-02-03
 
 ### Fixed

@@ -12,6 +12,7 @@ require 'db/setup'
 require 'lib/bcdd/result/rollback_on_failure'
 require 'lib/bcdd/result/transitions_record'
 require 'lib/bcdd/contracts'
+require 'lib/bcdd/values/uuid'
 require 'lib/runtime_breaker'
 
 module TransitionsListener

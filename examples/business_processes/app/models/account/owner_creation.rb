@@ -5,7 +5,7 @@ class Account
     include BCDD::Result::RollbackOnFailure
 
     input do
-      attribute :uuid, contract: :is_uuid, normalize: -> { _1.strip.downcase }, default: -> { ::SecureRandom.uuid }
+      attribute :uuid, value: :uuid
       attribute :owner, type: ::Hash, contract: :is_present
     end
 

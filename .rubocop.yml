@@ -49,6 +49,9 @@ Style/ParallelAssignment:
 Style/SingleLineMethods:
   Enabled: false
 
+Style/FormatStringToken:
+  Enabled: false
+
 Style/MapToSet:
   Enabled: false
 
@@ -63,6 +66,10 @@ Naming/VariableName:
 
 Naming/MemoizedInstanceVariableName:
   Enabled: false
+
+Metrics/AbcSize:
+  Exclude:
+    - lib/bcdd/ext/value.rb
 
 Metrics/BlockLength:
   Exclude:
