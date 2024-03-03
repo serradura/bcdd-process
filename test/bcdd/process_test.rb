@@ -5,22 +5,24 @@ require 'test_helper'
 class BCDD::ProcessTest < Minitest::Test
   class UserCreation < BCDD::Process
     input do
-      uuid_format = -> { _1.match?(/\A[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\z/i) or 'must be an UUID' }
+      uuid = { type: String, format: /\A[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\z/i }
 
-      attribute :uuid, type: ::String, contract: uuid_format, default: -> { ::SecureRandom.uuid }
-      attribute :name, type: ::String, contract: :is_present, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
-      attribute :email, contract: :is_email, normalize: -> { _1.strip.downcase }
-      attribute :password, contract: :is_password
-      attribute :executed_at, type: ::Time, default: -> { ::Time.current }
+      attribute :uuid, contract: uuid, default: -> { ::SecureRandom.uuid }
+      attribute :name, contract: { type: String, presence: true }, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
+      attribute :email, contract: { email: true }, normalize: -> { _1.strip.downcase }
+      attribute :password, contract: { password: true }
+      attribute :executed_at, contract: { type: ::Time }, default: -> { ::Time.current }
     end
 
     output do
-      Failure(email_already_taken: :empty_hash)
+      Failure email_already_taken: contract.with(empty: true)
 
-      Success user_created: { user: contract[::User] & :is_persisted }
+      Success user_created: contract.schema(
+        user: { type: User, persisted: true }
+      )
     end
 
-    def call(**input)
+    def call(input)
       Given(input)
         .and_then(:validate_email_has_not_been_taken)
         .and_then(:create_user)
@@ -62,7 +64,7 @@ class BCDD::ProcessTest < Minitest::Test
     user_count = ::User.count
 
     # Act
-    result = UserCreation.call(**input)
+    result = UserCreation.call(input)
 
     # Assert
     assert_equal(user_count + 1, ::User.count)
@@ -83,7 +85,7 @@ class BCDD::ProcessTest < Minitest::Test
     input = { name: '     ', email: 'John', password: '123123' }
 
     # Act
-    result = UserCreation.call(**input)
+    result = UserCreation.call(input)
 
     # Assert
     assert result.failure?(:invalid_input)
@@ -93,10 +95,10 @@ class BCDD::ProcessTest < Minitest::Test
     # Arrange
     input = { name: 'John Doe', email: 'john.doe@email.com', password: '123123123' }
 
-    UserCreation.new.call(**input)
+    UserCreation.new.call(input)
 
     # Act
-    result = UserCreation.new.call(**input)
+    result = UserCreation.new.call(input)
 
     # Assert
     assert result.failure?(:email_already_taken)

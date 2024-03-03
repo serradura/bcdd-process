@@ -5,20 +5,14 @@ module BCDD
     module Output
       # :nodoc:
       class Properties
-        attr_reader :success
+        attr_accessor :success
 
         def initialize
           @success = {}
           @failure = {}
         end
 
-        def success=(spec)
-          @success = spec.transform_values(&BCDD::Contract)
-        end
-
-        def failure=(spec)
-          @failure = spec.transform_values(&BCDD::Contract)
-        end
+        attr_writer :failure
 
         INVALID_INPUT = { invalid_input: ::Hash }.freeze
 
@@ -45,8 +39,29 @@ module BCDD
           __properties__.failure = spec
         end
 
+        module ContractWrapper
+          def self.with(arg)
+            options =
+              case arg
+              when ::Hash then { type: ::Hash }.merge(arg)
+              when ::Symbol then { arg => true }
+              else raise ArgumentError, "Invalid argument: #{arg.inspect}, expected Hash or Symbol"
+              end
+
+            ::BCDD::Contract.with(**options)
+          end
+
+          def self.schema(**options)
+            with(schema: options)
+          end
+
+          def self.pairs(**options)
+            with(pairs: options)
+          end
+        end
+
         def contract
-          ::BCDD::Contract
+          ContractWrapper
         end
       end
     end

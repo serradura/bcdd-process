@@ -5,17 +5,17 @@ require_relative 'value'
 module BCDD
   class Data
     class Object
-      attr_reader :attributes, :errors
+      attr_reader :attributes, :violations
 
       def initialize(**kargs)
         properties = self.class::Properties
         attributes = properties.map(kargs)
 
-        @errors = {}
+        @violations = {}
         @attributes =
           if properties.contract?
             attributes.each_with_object({}) do |(key, value), output|
-              output[key] = value.valid? ? value.value : (errors[key] = value.errors)
+              output[key] = value.valid? ? value.value : (violations[key] = value.to_h)
             end
           else
             attributes.transform_values!(&:value)
@@ -31,17 +31,20 @@ module BCDD
         @contract = false
       end
 
-      def attribute(name, **options)
+      def attribute(name, **opt)
         name.is_a?(Symbol) or raise ArgumentError, "#{name.inspect} must be a Symbol"
 
-        value_option = options[:value]
+        value_option = opt[:value]
 
-        spec[name] =
+        options =
           if value_option
-            (value_option.is_a?(Value::Object) ? value_option : Value[value_option])::Properties
+            value_object = (value_option.is_a?(Value::Object) ? value_option : Value[value_option])
+            value_object::Properties.spec.merge(opt.except(:value))
           else
-            Value::Properties.new(options).freeze
+            opt
           end
+
+        spec[name] = Value::Properties.new(options).freeze
       end
 
       def freeze

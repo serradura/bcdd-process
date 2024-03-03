@@ -5,6 +5,8 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in bcdd-process.gemspec
 gemspec
 
+gem 'bcdd-contract', git: 'git@github.com:yataska/bcdd_private.git', branch: 'bcdd-contract'
+
 gem 'rake', '~> 13.1'
 
 gem 'minitest', '~> 5.20'

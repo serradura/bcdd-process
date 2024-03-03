@@ -3,20 +3,22 @@
 class User::Token
   class Creation < ::BCDD::Process
     input do
-      attribute :user, contract: contract[::User] & :is_persisted
-      attribute :executed_at, contract: contract[::Time], default: -> { ::Time.current }
+      attribute :user, contract: { type: ::User, persisted: true }
+      attribute :executed_at, contract: { type: ::Time }, default: -> { ::Time.current }
     end
 
     output do
       Failure(
-        token_already_exists: :empty_hash,
-        token_creation_failed: :errors_by_attribute
+        token_already_exists: contract.with(empty: true),
+        token_creation_failed: contract.with(:errors_by_attribute)
       )
 
-      Success token_created: { token: contract[User::Token] & :is_persisted }
+      Success token_created: contract.schema(
+        token: { type: User::Token, persisted: true }
+      )
     end
 
-    def call(**input)
+    def call(input)
       Given(input)
         .and_then(:validate_token_existence)
         .and_then(:create_token)

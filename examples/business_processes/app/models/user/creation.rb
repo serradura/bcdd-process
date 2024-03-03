@@ -5,26 +5,26 @@ class User
     include BCDD::Result::RollbackOnFailure
 
     input do
-      attribute :uuid, value: :uuid
-      attribute :name, contract: :is_str, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
-      attribute :email, contract: :is_email, normalize: -> { _1.strip.downcase }
-      attribute :password, contract: :is_password
-      attribute :password_confirmation, contract: :is_password
+      attribute :uuid, value: :uuid, default: -> { ::SecureRandom.uuid }
+      attribute :name, contract: { type: ::String }, normalize: -> { _1.strip.gsub(/\s+/, ' ') }
+      attribute :email, contract: { email: true }, normalize: -> { _1.strip.downcase }
+      attribute :password, contract: { password: true }
+      attribute :password_confirmation, contract: { password: true }
     end
 
     output do
       Failure(
-        invalid_user: :errors_by_attribute,
-        email_already_taken: :empty_hash
+        invalid_user: contract.with(:errors_by_attribute),
+        email_already_taken: contract.with(empty: true)
       )
 
-      Success user_created: {
-        user: contract[::User] & :is_persisted,
-        token: contract[Token] & :is_persisted
-      }
+      Success user_created: contract.schema(
+        user: { type: ::User, persisted: true },
+        token: { type: Token, persisted: true }
+      )
     end
 
-    def call(**input)
+    def call(input)
       Given(input)
         .and_then(:validate_email_uniqueness)
         .then { |result|

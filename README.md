@@ -56,7 +56,7 @@ class User
       }
     end
 
-    def call(**input)
+    def call(input)
       Given(input)
         .and_then(:validate_email_uniqueness)
         .then { |result|

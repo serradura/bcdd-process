@@ -3,19 +3,15 @@
 require 'securerandom'
 
 module BCDD
-  module Contracts
-    is_uuid = ->(val) { val.match?(/\A[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\z/) or '%p must be an UUID' }
-
-    register(is_uuid: contract[::String] & is_uuid)
+  module Contract
+    register!(:uuid, type: String, format: /\A[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\z/)
   end
 
   module Values
     register(
       name: :uuid,
-      type: ::String,
-      contract: :is_uuid,
-      normalize: -> { _1.strip.downcase },
-      default: -> { ::SecureRandom.uuid }
+      contract: { uuid: true },
+      normalize: -> { _1.strip.downcase }
     )
   end
 end

@@ -12,7 +12,7 @@ class BCDD::Process::InputNormalizeTest < Minitest::Test
 
     output(expectations: false)
 
-    def call(**input)
+    def call(input)
       Success(:input, **input)
     end
   end
@@ -26,7 +26,7 @@ class BCDD::Process::InputNormalizeTest < Minitest::Test
     }
 
     # Act
-    result = MyProcess.call(**input)
+    result = MyProcess.call(input)
 
     # Assert
 

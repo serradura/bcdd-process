@@ -5,37 +5,33 @@ require 'singleton'
 module BCDD
   class Value
     class Object
-      attr_reader :value, :errors
+      attr_reader :value, :contract
 
       def initialize(value = nil)
         properties = self.class::Properties
         contract = properties.map(value)
 
-        @errors = contract.errors
+        @contract = contract
         @value = contract.value
       end
     end
 
     class Properties
-      module Contract
-        def self.[](options)
-          contract = compose(options)
-          required = options.fetch(:required, true)
+      Contract = ->(options) do
+        contract = options[:contract]
+        required = options.fetch(:required, true)
 
-          if contract
-            required ? contract : (contract | nil)
-          elsif required
-            Contracts::NotNil
-          end
+        if contract.is_a?(BCDD::Contract::Value::Checker) ||
+           contract.is_a?(BCDD::Contract::Data::Schema) ||
+           contract.is_a?(BCDD::Contract::Data::Pairs)
+          return contract
         end
 
-        def self.compose(options)
-          type = ::BCDD::Contract.type(options[:type]) if options.key?(:type)
-          contract = ::BCDD::Contract[options[:contract]] if options.key?(:contract)
-          respond_to = ::BCDD::Contract.respond_to(Array(options[:respond_to])) if options.key?(:respond_to)
+        return unless contract || required
 
-          [type, contract, respond_to].compact!&.reduce(:&)
-        end
+        !contract && required and return BCDD::Contract.with(allow_nil: false)
+
+        BCDD::Contract.with(**(required ? contract : contract.merge(allow_nil: true)))
       end
 
       Default = ->(options) do
@@ -55,14 +51,6 @@ module BCDD
         raise ArgumentError, 'normalize value must be a lambda'
       end
 
-      Type = ->(options) do
-        type = options[:type]
-
-        return type if type.is_a?(::Module)
-
-        raise ArgumentError, 'type must be a Module or a Class'
-      end
-
       attr_reader :spec, :contract
 
       def initialize(options)
@@ -71,7 +59,6 @@ module BCDD
         contract = Contract[options]
 
         @spec = {}
-        @spec[:type] = Type[options] if options.key?(:type)
         @spec[:default] = Default[options] if options.key?(:default)
         @spec[:contract] = contract if contract
         @spec[:normalize] = Normalize[options] if options.key?(:normalize)
@@ -89,6 +76,7 @@ module BCDD
         contract
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def map(value)
         if !value && spec.key?(:default)
           default = spec[:default]
@@ -96,12 +84,13 @@ module BCDD
           value = default.is_a?(::Proc) ? default.call : default
         end
 
-        type = spec[:type]
+        type = spec[:contract]&.clauses&.[](:type)
 
-        value = spec[:normalize].call(value) if spec.key?(:normalize) && (!type || type === value)
+        value = spec[:normalize].call(value) if spec.key?(:normalize) && (!type || type.any? { |type| type === value })
 
         spec.key?(:contract) ? spec[:contract][value] : Contract.null(value)
       end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     end
 
     class Registry

@@ -11,13 +11,13 @@ require_relative 'process/output'
 module BCDD
   class Process
     module Caller
-      def call(**kargs)
-        input = self.class::Input.new(**kargs)
+      def call(arg)
+        input = self.class::Input.new(**arg)
 
         Result.transitions(name: self.class.name) do
-          return Failure(:invalid_input, **input.errors) if input.errors.any?
+          return Failure(:invalid_input, **input.violations) if input.violations.any?
 
-          super(**input.attributes)
+          super(input.attributes)
         end
       end
     end
@@ -50,8 +50,8 @@ module BCDD
       subclass.prepend(Caller)
     end
 
-    def self.call(**input)
-      new.call(**input)
+    def self.call(input)
+      new.call(input)
     end
 
     private_constant :Caller, :RESULT_CONFIG

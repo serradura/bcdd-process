@@ -5,23 +5,23 @@ class Account
     include BCDD::Result::RollbackOnFailure
 
     input do
-      attribute :uuid, value: :uuid
-      attribute :owner, type: ::Hash, contract: :is_present
+      attribute :uuid, value: :uuid, default: -> { ::SecureRandom.uuid }
+      attribute :owner, contract: { type: ::Hash }
     end
 
     output do
       Failure(
-        invalid_owner: ::Hash,
-        invalid_account: :errors_by_attribute
+        invalid_owner: contract.with(empty: false),
+        invalid_account: contract.with(:errors_by_attribute)
       )
 
-      Success account_owner_created: {
-        user: contract[::User] & :is_persisted,
-        account: contract[::Account] & :is_persisted
-      }
+      Success account_owner_created: contract.schema(
+        user: { type: ::User, persisted: true },
+        account: { type: ::Account, persisted: true }
+      )
     end
 
-    def call(**input)
+    def call(input)
       rollback_on_failure {
         Given(input)
           .and_then(:create_owner)
